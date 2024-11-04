@@ -814,7 +814,7 @@ void loop() {
 
   // センサ値の送信
   uint8_t sensor_buf[16];
-  sprintf((char *)sensor_buf, "{\"dist\": %f}\n", dist);
+  sprintf((char *)sensor_buf, "%f\n", dist);
   size_t sensor_buf_len = strlen((char *)sensor_buf);
   gUdp.broadcastTo(sensor_buf, sensor_buf_len, UDP_PORT);
 
