@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -26,12 +27,13 @@ add_executable(plus_m5base
   src/m5base_controller.cpp
   src/motor_control.cpp
 )
-ament_target_dependencies(plus_m5base rclcpp sensor_msgs)
+ament_target_dependencies(plus_m5base rclcpp sensor_msgs std_msgs)
 install(TARGETS plus_m5base DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(sensor_msgs REQUIRED)
+  find_package(std_msgs REQUIRED)
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
   set(ament_cmake_copyright_FOUND TRUE)

@@ -19,10 +19,24 @@ M5baseController::M5baseController()
         rclcpp::QoS(10),
         std::bind(&M5baseController::joyCallback, this, std::placeholders::_1)
     );
+    pub_dist_ = this->create_publisher<std_msgs::msg::Float32>("/dist", 10);
+
+    timer_ = this->create_wall_timer(
+        std::chrono::milliseconds(100),
+        std::bind(&M5baseController::timerCallback, this)
+    );
     motor_control.start();
 }
 
 void M5baseController::joyCallback(const sensor_msgs::msg::Joy& joy) {
     motor_control.drive(-(int)(joy.axes[5] * 63.0), -(int)(joy.axes[1] * 63.0));
     RCLCPP_INFO(this->get_logger(), "Joy: %d, %d", -(int)(joy.axes[5] * 63.0), -(int)(joy.axes[1] *63.0));
+}
+
+void M5baseController::timerCallback() {
+    float dist = motor_control.get_dist();
+    RCLCPP_INFO(this->get_logger(), "Dist: %f", dist);
+    std_msgs::msg::Float32 msg;
+    msg.data = dist;
+    pub_dist_->publish(msg);
 }
