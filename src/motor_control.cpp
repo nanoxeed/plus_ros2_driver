@@ -18,6 +18,7 @@
 
 void *udp_recvfunc(void *pdata)
 {
+    printf("UDP Receive Thread Start!\n");
     MotorControl *pcontroller = (MotorControl *)pdata;
     unsigned short port = UDP_PORT;
     int sockClient = -1;
@@ -49,6 +50,7 @@ void *udp_recvfunc(void *pdata)
             }
 
             pcontroller->m_bUdpConnected = true;
+            printf("UDP Connected\n");
         }
         else
         {
@@ -68,6 +70,7 @@ void *udp_recvfunc(void *pdata)
 
 void *threadfunc(void *pdata)
 {
+    printf("Motor Control Thread Start!\n");
     MotorControl *pcontroller = (MotorControl *)pdata;
     unsigned short port = SERVER_PORT;
     int sockClient = -1;
@@ -101,19 +104,21 @@ void *threadfunc(void *pdata)
             }
 
             pcontroller->m_bConnected = true;
+            printf("Connected\n");
         }
         else
         {
             char buff[256];
             pcontroller->m_command_mutex.lock();
             sprintf(buff, "###,%3d,%3d,%03d,%03d\r", pcontroller->m_r, pcontroller->m_l, 0, 0);
+            pcontroller->m_command_mutex.unlock();
             if (send(sockClient, buff, ((int)strlen(buff) + 0), 0) < 0)
             {
                 // 送信エラー
+                printf("ERROR:send\n");
                 break;
             }
             printf("SC:send[%s]\n", buff);
-            pcontroller->m_command_mutex.unlock();
 
             memset(buff, 0, sizeof(buff));
             int len = recv(sockClient, buff, 7, 0);
@@ -138,6 +143,7 @@ void MotorControl::start()
     pthread_t th;
 
     pthread_create(&th, NULL, threadfunc, this);
+    pthread_create(&th, NULL, udp_recvfunc, this);
 }
 
 void MotorControl::drive(int rval, int lval)
@@ -148,14 +154,13 @@ void MotorControl::drive(int rval, int lval)
 
 float MotorControl::get_dist()
 {
-    m_sensor_mutex.lock();
+    std::lock_guard<std::mutex> lock(m_sensor_mutex);
     return m_dist;
 }
 
 void MotorControl::set_commands(int rval, int lval)
 {
-    m_command_mutex.lock();
+    std::lock_guard<std::mutex> lock(m_command_mutex);
     m_r = rval;
     m_l = lval;
-    m_command_mutex.unlock();
 }

@@ -11,8 +11,10 @@ M5baseController::M5baseController()
 : Node("plus_m5base"){
 
     std::string plus_ip = DEF_IP;
+    this->declare_parameter("plus_ip", plus_ip);
     this->get_parameter("plus_ip", plus_ip);
     strcpy(motor_control.m_ip, plus_ip.c_str());
+    std::cout << "plus_ip: " << plus_ip << std::endl;
 
     subscription_ = this->create_subscription<sensor_msgs::msg::Joy>(
         "/joy",
