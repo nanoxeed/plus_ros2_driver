@@ -1,0 +1,66 @@
+#!/usr/bin/python3
+import sys
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Joy
+from python_qt_binding.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+
+
+class ControlUI(QWidget):
+
+    def __init__(self):
+        super(ControlUI, self).__init__()
+        self.init_ui()
+        rclpy.init()
+        self.node = Node("control_ui")
+        self.joy_pub = self.node.create_publisher(Joy, "joy", 10)
+
+    def init_ui(self):
+        # Layout and buttons
+        layout = QVBoxLayout(self)
+
+        self.up_button = QPushButton('Up', self)
+        self.down_button = QPushButton('Down', self)
+        self.left_button = QPushButton('Left', self)
+        self.right_button = QPushButton('Right', self)
+        self.stop_button = QPushButton('Stop', self)
+
+        layout.addWidget(self.up_button)
+        layout.addWidget(self.down_button)
+        layout.addWidget(self.left_button)
+        layout.addWidget(self.right_button)
+        layout.addWidget(self.stop_button)
+
+        # Connect signals
+        self.up_button.clicked.connect(lambda: self.publish_joy_message("up"))
+        self.down_button.clicked.connect(lambda: self.publish_joy_message("down"))
+        self.left_button.clicked.connect(lambda: self.publish_joy_message("left"))
+        self.right_button.clicked.connect(lambda: self.publish_joy_message("right"))
+        self.stop_button.clicked.connect(lambda: self.publish_joy_message("stop"))
+
+        self.setLayout(layout)
+
+    def publish_joy_message(self, direction):
+        joy_msg = Joy()
+        joy_msg.header.stamp = self.node.get_clock().now().to_msg()
+        value = 0.2
+
+        if direction == "up":
+            joy_msg.axes = [0, value, 0, 0, 0, value]
+        elif direction == "down":
+            joy_msg.axes = [0, -value, 0, 0, 0, -value]
+        elif direction == "left":
+            joy_msg.axes = [0, -value, 0, 0, 0, value]
+        elif direction == "right":
+            joy_msg.axes = [0, value, 0, 0, 0, -value]
+        elif direction == "stop":
+            joy_msg.axes = [0, 0, 0, 0, 0, 0]
+
+        self.joy_pub.publish(joy_msg)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = ControlUI()
+    ex.show()
+    sys.exit(app.exec_())

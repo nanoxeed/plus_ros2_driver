@@ -29,6 +29,14 @@ add_executable(plus_m5base
 )
 ament_target_dependencies(plus_m5base rclcpp sensor_msgs std_msgs)
 install(TARGETS plus_m5base DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+install(PROGRAMS
+  scripts/control_ui
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
