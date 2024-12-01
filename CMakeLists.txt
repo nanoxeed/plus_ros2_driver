@@ -35,6 +35,8 @@ install(DIRECTORY
 )
 install(PROGRAMS
   scripts/control_ui
+  scripts/sensor_test.py
+  scripts/obstacle_avoidance.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

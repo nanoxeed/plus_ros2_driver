@@ -3,7 +3,7 @@
 ## Getting Started
 
 ```bash
-ros2 launch plus_ros2_driver ui_control.launch ip:=<plusのIPアドレス>
+ros2 launch plus_ros2_driver ui_control.launch.xml ip:=<plusのIPアドレス>
 ```
 
 Run the sensor test node.
